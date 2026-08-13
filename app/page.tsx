@@ -7,7 +7,10 @@ import { VatCalc } from "@/components/VatCalc";
 import { NetSalaryCalc } from "@/components/NetSalaryCalc";
 import { CorporateCalc } from "@/components/CorporateCalc";
 import { PdfScanner } from "@/components/PdfScanner";
-import { PROFILES, TOOLS, profileById, type Profile, type ToolId } from "@/lib/tools";
+import { EnfiaCalc } from "@/components/EnfiaCalc";
+import { RentalCalc } from "@/components/RentalCalc";
+import { DividendCalc } from "@/components/DividendCalc";
+import { PROFILES, TOOLS, GROUPS, groupedTools, profileById, type Profile, type ToolId } from "@/lib/tools";
 
 interface Scanned {
   revenue: number;
@@ -49,6 +52,7 @@ export default function Home() {
             <li><a href="#tools">Ποιος είσαι</a></li>
             <li><a href="#rules">Κλίμακες 2025</a></li>
             <li><a href="/deadlines">Προθεσμίες</a></li>
+            <li><a href="/documents">Έγγραφα</a></li>
             <li><a href="#faq">Συχνές ερωτήσεις</a></li>
             <li><a href="/history">Ιστορικό</a></li>
             <li><a href="/account">Λογαριασμός</a></li>
@@ -108,20 +112,25 @@ export default function Home() {
             <span className="profile-badge">
               → Εργαλεία για: {activeProfile.title}
             </span>
-            <div className="tabs" role="tablist" aria-label="Εργαλεία">
-              {activeProfile.tools.map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  role="tab"
-                  aria-selected={active === t}
-                  className={active === t ? "active" : ""}
-                  onClick={() => switchTool(t)}
-                >
-                  {TOOLS[t].icon} {TOOLS[t].label}
-                </button>
-              ))}
-            </div>
+            {groupedTools(profile).map(({ group, tools }) => (
+              <div key={group} className="tool-group">
+                <span className="tool-group-label">{GROUPS.find((g) => g.id === group)!.label}</span>
+                <div className="tabs" role="tablist" aria-label={GROUPS.find((g) => g.id === group)!.label}>
+                  {tools.map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      role="tab"
+                      aria-selected={active === t}
+                      className={active === t ? "active" : ""}
+                      onClick={() => switchTool(t)}
+                    >
+                      {TOOLS[t].icon} {TOOLS[t].label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
 
             {active === "income" && <IncomeCalc key={profile} defaultType={activeProfile.defaultIncomeType} />}
             {active === "salary" && <NetSalaryCalc />}
@@ -139,6 +148,9 @@ export default function Home() {
               />
             )}
             {active === "vat" && <VatCalc />}
+            {active === "enfia" && <EnfiaCalc />}
+            {active === "rent" && <RentalCalc />}
+            {active === "dividend" && <DividendCalc />}
             {active === "scan" && <PdfScanner onApply={applyScan} />}
           </div>
         </section>
@@ -211,9 +223,29 @@ export default function Home() {
                 <p>Πρόσθεσε ή απόσπασε ΦΠΑ 24/13/6% από οποιοδήποτε ποσό, άμεσα.</p>
               </div>
               <div className="tool-card">
+                <div className="tool-icon">🏠</div>
+                <h3>ΕΝΦΙΑ</h3>
+                <p>Εκτίμησε τον φόρο ακίνητης περιουσίας από εμβαδόν, τιμή ζώνης και παλαιότητα.</p>
+              </div>
+              <div className="tool-card">
+                <div className="tool-icon">🔑</div>
+                <h3>Καθαρό ενοίκιο</h3>
+                <p>Από μεικτό ενοίκιο σε καθαρό εισόδημα — 15% κατοικία, 24% επαγγελματικά.</p>
+              </div>
+              <div className="tool-card">
+                <div className="tool-icon">💸</div>
+                <h3>Μέρισμα & τόκοι</h3>
+                <p>Μερίσματα 5% και τόκοι καταθέσεων 15% — από μικτό σε καθαρό ποσό.</p>
+              </div>
+              <div className="tool-card">
                 <div className="tool-icon">📄</div>
                 <h3>Σάρωση PDF εσόδων/εξόδων</h3>
                 <p>Ανέβασε ψηφιακό PDF (τιμολόγια, τράπεζα, myData) και βγάλε έσοδα – έξοδα για επαγγελματίες & επιχειρήσεις.</p>
+              </div>
+              <div className="tool-card">
+                <div className="tool-icon">📁</div>
+                <h3>Έγγραφα</h3>
+                <p>Μια οργανωμένη βιβλιοθήκη για όλα τα αρχεία σου — κατηγοριοποίησε, αναζήτησε και βρες ό,τι χρειάζεσαι.</p>
               </div>
               <div className="tool-card">
                 <div className="tool-icon">🗓️</div>

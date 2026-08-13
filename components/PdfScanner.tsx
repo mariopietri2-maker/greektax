@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { eur } from "@/lib/tax";
+import { saveDocument } from "@/lib/supabase/documents";
 
 type Kind = "income" | "expense" | "skip";
 
@@ -59,6 +60,7 @@ export function PdfScanner({
   const inputRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<"idle" | "working" | "review">("idle");
   const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
   const [entries, setEntries] = useState<Entry[]>([]);
   const [fileName, setFileName] = useState("");
 
@@ -72,6 +74,7 @@ export function PdfScanner({
     }
     setState("working");
     setError("");
+    setSaved(false);
     setFileName(file.name);
     try {
       const pdfjs = await import("pdfjs-dist");
@@ -131,8 +134,26 @@ export function PdfScanner({
     setEntries([]);
     setFileName("");
     setError("");
+    setSaved(false);
     setState("idle");
     if (inputRef.current) inputRef.current.value = "";
+  };
+
+  const handleSave = async () => {
+    const kind = revenue > 0 && expenses > 0 ? "mixed" : revenue > 0 ? "income" : "expense";
+    const res = await saveDocument({
+      title: fileName || `Σάρωση — ${new Date().toLocaleDateString("el-GR")}`,
+      category: "Φορολογικά",
+      kind,
+      amount: kind === "income" ? revenue : expenses,
+      items: entries.map((e) => ({ label: e.label, amount: e.amount, kind: e.kind })),
+    });
+    if (res.ok) {
+      setSaved(true);
+      setError("");
+    } else {
+      setError(res.error ?? "Δεν ήταν δυνατή η αποθήκευση.");
+    }
   };
 
   const counts = { income: 0, expense: 0, skip: 0 };
@@ -222,8 +243,21 @@ export function PdfScanner({
               >
                 → Χρήση στους υπολογισμούς
               </button>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                disabled={counts.income + counts.expense === 0 || saved}
+                onClick={() => void handleSave()}
+              >
+                {saved ? "✓ Αποθηκεύτηκε στα Έγγραφα" : "📁 Αποθήκευση στα Έγγραφα"}
+              </button>
               <button type="button" className="btn btn-ghost" onClick={reset}>🔄 Νέο αρχείο</button>
             </div>
+            {saved && (
+              <p className="note" style={{ color: "var(--success)" }}>
+                ✓ Το έγγραφο αποθηκεύτηκε — βρες το στη σελίδα <b>Έγγραφα</b>.
+              </p>
+            )}
           </div>
         )}
       </div>

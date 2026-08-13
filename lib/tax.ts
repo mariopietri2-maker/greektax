@@ -304,3 +304,57 @@ export function efkaForCategory(category: number): { monthly: number; annual: nu
   const c = EFKA_CATEGORIES[category] ?? EFKA_CATEGORIES[2];
   return { monthly: c.monthly, annual: c.monthly * 12 };
 }
+
+/**
+ * Rental income (ενοίκια). Residential leases are taxed at 15%; business/short-term
+ * (βραχυχρόνια μίσθωση) at 24%. Tax is levied on the gross annual rent.
+ */
+export const RENTAL_RATE_RESIDENTIAL = 0.15;
+export const RENTAL_RATE_BUSINESS = 0.24;
+
+export interface RentalResult {
+  annualGross: number;
+  tax: number;
+  annualNet: number;
+  monthlyNet: number;
+  effectiveRate: number;
+}
+
+export function rentalTax(monthlyRent: number, kind: "residential" | "business"): RentalResult {
+  const annualGross = monthlyRent * 12;
+  const rate = kind === "residential" ? RENTAL_RATE_RESIDENTIAL : RENTAL_RATE_BUSINESS;
+  const tax = annualGross * rate;
+  const annualNet = annualGross - tax;
+  return {
+    annualGross,
+    tax,
+    annualNet,
+    monthlyNet: annualNet / 12,
+    effectiveRate: rate * 100,
+  };
+}
+
+/**
+ * Dividends & bank-interest income.
+ * Dividends (μερίσματα): 5% final withholding.
+ * Bank interest (τόκοι καταθέσεων): 15% final withholding.
+ */
+export const DIVIDEND_RATE = 0.05;
+export const INTEREST_RATE = 0.15;
+
+export interface WithholdingResult {
+  gross: number;
+  tax: number;
+  net: number;
+  effectiveRate: number;
+}
+
+export function dividendTax(gross: number): WithholdingResult {
+  const tax = Math.max(0, gross) * DIVIDEND_RATE;
+  return { gross, tax, net: gross - tax, effectiveRate: DIVIDEND_RATE * 100 };
+}
+
+export function interestTax(gross: number): WithholdingResult {
+  const tax = Math.max(0, gross) * INTEREST_RATE;
+  return { gross, tax, net: gross - tax, effectiveRate: INTEREST_RATE * 100 };
+}

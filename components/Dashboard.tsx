@@ -8,7 +8,10 @@ import { VatCalc } from "@/components/VatCalc";
 import { NetSalaryCalc } from "@/components/NetSalaryCalc";
 import { CorporateCalc } from "@/components/CorporateCalc";
 import { PdfScanner } from "@/components/PdfScanner";
-import { PROFILES, TOOLS, profileById, type Profile, type ToolId } from "@/lib/tools";
+import { EnfiaCalc } from "@/components/EnfiaCalc";
+import { RentalCalc } from "@/components/RentalCalc";
+import { DividendCalc } from "@/components/DividendCalc";
+import { PROFILES, TOOLS, GROUPS, groupedTools, profileById, type Profile, type ToolId } from "@/lib/tools";
 import type { SavedCalculation } from "@/lib/supabase/calcs";
 import type { ProfileType } from "@/app/actions/auth";
 
@@ -68,26 +71,37 @@ export function Dashboard({ email, fullName, profileType, recentCalcs }: Props) 
 
         <span className="dash-label" style={{ marginTop: 4 }}>Εργαλεία</span>
         <nav className="dash-nav">
-          {activeProfile.tools.map((t) => (
-            <button
-              key={t}
-              type="button"
-              className={`dash-link ${active === t ? "active" : ""}`}
-              onClick={() => switchTool(t)}
-            >
-              <span className="dash-ic">{TOOLS[t].icon}</span>
-              {TOOLS[t].label}
-            </button>
+          {groupedTools(profile).map(({ group, tools }) => (
+            <div key={group} className="dash-nav-group">
+              <span className="dash-label">{GROUPS.find((g) => g.id === group)!.label}</span>
+              {tools.map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  className={`dash-link ${active === t ? "active" : ""}`}
+                  onClick={() => switchTool(t)}
+                >
+                  <span className="dash-ic">{TOOLS[t].icon}</span>
+                  {TOOLS[t].label}
+                </button>
+              ))}
+            </div>
           ))}
-          <Link href="/deadlines" className="dash-link">
-            <span className="dash-ic">🗓️</span> Προθεσμίες
-          </Link>
-          <Link href="/history" className="dash-link">
-            <span className="dash-ic">🧾</span> Ιστορικό
-          </Link>
-          <Link href="/account" className="dash-link">
-            <span className="dash-ic">⚙️</span> Λογαριασμός
-          </Link>
+          <div className="dash-nav-group">
+            <span className="dash-label">Γενικά</span>
+            <Link href="/deadlines" className="dash-link">
+              <span className="dash-ic">🗓️</span> Προθεσμίες
+            </Link>
+            <Link href="/documents" className="dash-link">
+              <span className="dash-ic">📁</span> Έγγραφα
+            </Link>
+            <Link href="/history" className="dash-link">
+              <span className="dash-ic">🧾</span> Ιστορικό
+            </Link>
+            <Link href="/account" className="dash-link">
+              <span className="dash-ic">⚙️</span> Λογαριασμός
+            </Link>
+          </div>
         </nav>
 
         <div className="dash-side-foot">
@@ -134,20 +148,25 @@ export function Dashboard({ email, fullName, profileType, recentCalcs }: Props) 
 
         <main className="container" style={{ paddingTop: 30, paddingBottom: 70 }}>
           <span className="profile-badge">→ Εργαλεία για: {activeProfile.title}</span>
-          <div className="dash-tabs">
-            {activeProfile.tools.map((t) => (
-              <button
-                key={t}
-                type="button"
-                role="tab"
-                aria-selected={active === t}
-                className={active === t ? "active" : ""}
-                onClick={() => switchTool(t)}
-              >
-                {TOOLS[t].icon} {TOOLS[t].label}
-              </button>
-            ))}
-          </div>
+          {groupedTools(profile).map(({ group, tools }) => (
+            <div key={group} className="tool-group">
+              <span className="tool-group-label">{GROUPS.find((g) => g.id === group)!.label}</span>
+              <div className="dash-tabs">
+                {tools.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    role="tab"
+                    aria-selected={active === t}
+                    className={active === t ? "active" : ""}
+                    onClick={() => switchTool(t)}
+                  >
+                    {TOOLS[t].icon} {TOOLS[t].label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
 
           <div className="dash-tool">
             {active === "income" && <IncomeCalc key={profile} defaultType={activeProfile.defaultIncomeType} />}
@@ -166,6 +185,9 @@ export function Dashboard({ email, fullName, profileType, recentCalcs }: Props) 
               />
             )}
             {active === "vat" && <VatCalc />}
+            {active === "enfia" && <EnfiaCalc />}
+            {active === "rent" && <RentalCalc />}
+            {active === "dividend" && <DividendCalc />}
             {active === "scan" && <PdfScanner onApply={applyScan} />}
           </div>
 
