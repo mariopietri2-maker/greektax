@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { eur, pct, netSalary, TAX_YEARS, EMPLOYEE_INSURANCE, type TaxYear } from "@/lib/tax";
 import { NumberField, Segmented, ResultBig, Breakdown } from "./ui";
+import { SaveButton } from "./SaveButton";
 
 export function NetSalaryCalc() {
   const [year, setYear] = useState<TaxYear>("2025");
@@ -33,6 +34,11 @@ export function NetSalaryCalc() {
           maxBar={res.grossMonthly}
         />
         <p className="note">Το κόστος εργοδότη περιλαμβάνει επιπλέον εισφορές ~22,29%.</p>
+        <SaveButton
+          tool="salary"
+          title={`Καθαρός μισθός ${year} — μεικτά ${eur(gross)}`}
+          data={{ year, gross, netMonthly: res.netMonthly, insurance: res.insurance, monthlyTax: res.monthlyTax, employerCost: res.employerCost, detail: `Μεικτά ${eur(gross)} → καθαρά ${eur(res.netMonthly, 2)}` }}
+        />
       </div>
     </div>
   );

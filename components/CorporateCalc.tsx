@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { eur, pct, corporateTax } from "@/lib/tax";
 import { NumberField, Segmented, ResultBig, Breakdown } from "./ui";
+import { SaveButton } from "./SaveButton";
 
 export function CorporateCalc() {
   const [entityType, setEntityType] = useState<"double" | "single">("double");
@@ -40,6 +41,11 @@ export function CorporateCalc() {
             { k: "Συνολικός συντελεστής", v: pct(res.effectiveRate) },
           ]}
           maxBar={profit}
+        />
+        <SaveButton
+          tool="corp"
+          title={`Εταιρεία — κέρδη ${eur(profit)}`}
+          data={{ entityType, profit, tax: res.tax, dividendTax: res.dividendTax, dividendNet: res.dividendNet, effectiveRate: res.effectiveRate, detail: `Φόρος ${eur(res.tax)} · καθαρό μέρισμα ${eur(res.dividendNet)}` }}
         />
       </div>
     </div>

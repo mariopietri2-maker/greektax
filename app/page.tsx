@@ -85,6 +85,8 @@ export default function Home() {
             <li><a href="#tools">Ποιος είσαι</a></li>
             <li><a href="#rules">Κλίμακες 2025</a></li>
             <li><a href="#faq">Συχνές ερωτήσεις</a></li>
+            <li><a href="/history">Ιστορικό</a></li>
+            <li><a href="/account">Λογαριασμός</a></li>
           </ul>
         </div>
       </nav>

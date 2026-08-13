@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { eur, pct, incomeTax, TAX_YEARS, type TaxYear, type IncomeTaxResult } from "@/lib/tax";
 import { NumberField, Segmented, ResultBig, Breakdown } from "./ui";
+import { SaveButton } from "./SaveButton";
 
 const TYPE_OPTIONS = [
   { value: "wage" as const, label: "Μισθωτός" },
@@ -57,6 +58,11 @@ export function IncomeCalc({ defaultType }: { defaultType?: "wage" | "business" 
           maxBar={income}
         />
         <TaxScaleTable res={res} />
+        <SaveButton
+          tool="income"
+          title={`Φόρος εισοδήματος — ${eur(income)} (${type})`}
+          data={{ income, type, year, tax: res.netTax, grossTax: res.grossTax, credit: res.credit, effectiveRate: res.effectiveRate, detail: `Εισόδημα ${eur(income)} · φόρος ${eur(res.netTax)}` }}
+        />
       </div>
     </div>
   );

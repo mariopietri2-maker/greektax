@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { eur, pct, selfEmployedTax, TAX_YEARS, type TaxYear } from "@/lib/tax";
 import { NumberField, Segmented, ResultBig, Breakdown } from "./ui";
+import { SaveButton } from "./SaveButton";
 
 export function SelfEmployedCalc() {
   const [year, setYear] = useState<TaxYear>("2025");
@@ -48,6 +49,11 @@ export function SelfEmployedCalc() {
             { k: "Συνολικό πληρωτέο", v: eur(res.totalDue), accent: "danger" },
             { k: "Φόρος / φορολογητέο", v: pct(res.effectiveRate), accent: "teal" },
           ]}
+        />
+        <SaveButton
+          tool="self"
+          title={`Ελεύθερος επαγγελματίας ${year} — κέρδη ${eur(profit)}`}
+          data={{ year, years, profit, revenue, payroll, deemed: res.deemed, finalTaxable: res.finalTaxable, tax: res.tax, advance: res.advance, totalDue: res.totalDue, detail: `Φορολογητέο ${eur(res.finalTaxable)} · πληρωτέο ${eur(res.totalDue)}` }}
         />
       </div>
     </div>

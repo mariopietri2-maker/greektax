@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { eur, vatCalc, pct, type VatRate } from "@/lib/tax";
 import { NumberField, Segmented, ResultBig, Breakdown } from "./ui";
+import { SaveButton } from "./SaveButton";
 
 const RATES = [
   { value: 0.24 as VatRate, label: "24% — Κανονικός" },
@@ -41,6 +42,11 @@ export function VatCalc() {
             { k: "Σύνολο", v: eur(res.gross, 2), accent: "grad" },
           ]}
           maxBar={res.gross}
+        />
+        <SaveButton
+          tool="vat"
+          title={`ΦΠΑ ${pct(rate * 100)} — ${eur(res.gross, 2)}`}
+          data={{ mode, rate, net: res.net, vat: res.vat, gross: res.gross, detail: `${eur(res.net, 2)} + ΦΠΑ ${eur(res.vat, 2)} = ${eur(res.gross, 2)}` }}
         />
       </div>
     </div>
