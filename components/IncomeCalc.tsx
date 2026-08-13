@@ -10,10 +10,10 @@ const TYPE_OPTIONS = [
   { value: "rent" as const, label: "Ενοίκια" },
 ];
 
-export function IncomeCalc() {
+export function IncomeCalc({ defaultType }: { defaultType?: "wage" | "business" | "rent" }) {
   const [year, setYear] = useState<TaxYear>("2025");
   const [income, setIncome] = useState(25_000);
-  const [type, setType] = useState<"wage" | "business" | "rent">("wage");
+  const [type, setType] = useState<"wage" | "business" | "rent">(defaultType ?? "wage");
   const [children, setChildren] = useState(0);
 
   const res = incomeTax({ year, income, incomeType: type, children });

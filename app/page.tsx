@@ -7,18 +7,71 @@ import { VatCalc } from "@/components/VatCalc";
 import { NetSalaryCalc } from "@/components/NetSalaryCalc";
 import { CorporateCalc } from "@/components/CorporateCalc";
 
-const TOOLS = [
-  { id: "income", label: "Φόρος εισοδήματος", icon: "💶" },
-  { id: "salary", label: "Καθαρός μισθός", icon: "🧾" },
-  { id: "self", label: "Ελεύθερος επαγγελματίας", icon: "💼" },
-  { id: "corp", label: "Εταιρεία", icon: "🏢" },
-  { id: "vat", label: "ΦΠΑ", icon: "🧮" },
-] as const;
+type Profile = "individual" | "self" | "business";
 
-type ToolId = (typeof TOOLS)[number]["id"];
+const PROFILES: {
+  id: Profile;
+  icon: string;
+  title: string;
+  desc: string;
+  tools: ToolId[];
+  defaultTool: ToolId;
+  defaultIncomeType: "wage" | "business" | "rent";
+}[] = [
+  {
+    id: "individual",
+    icon: "🧑",
+    title: "Μισθωτός / Φυσικό πρόσωπο",
+    desc: "Μισθοί, συντάξεις, ενοίκια. Κλίμακα 9–44% με μείωση φόρου και τέκνα.",
+    tools: ["income", "salary", "vat"],
+    defaultTool: "income",
+    defaultIncomeType: "wage",
+  },
+  {
+    id: "self",
+    icon: "💼",
+    title: "Ελεύθερος επαγγελματίας",
+    desc: "Ατομική επιχείρηση, μπλοκάκι. Ελάχιστο τεκμαρτό εισόδημα και προκαταβολή 100%.",
+    tools: ["income", "self", "vat"],
+    defaultTool: "self",
+    defaultIncomeType: "business",
+  },
+  {
+    id: "business",
+    icon: "🏢",
+    title: "Επιχείρηση",
+    desc: "Α.Ε., Ι.Κ.Ε., Ο.Ε., Ε.Ε. Φόρος νομικών προσώπων 22% και μερίσματα.",
+    tools: ["self", "corp", "vat"],
+    defaultTool: "corp",
+    defaultIncomeType: "business",
+  },
+];
+
+const TOOLS: Record<ToolId, { label: string; icon: string }> = {
+  income: { label: "Φόρος εισοδήματος", icon: "💶" },
+  salary: { label: "Καθαρός μισθός", icon: "🧾" },
+  self: { label: "Τεκμαρτό εισόδημα", icon: "📊" },
+  corp: { label: "Φορολογία εταιρείας", icon: "🏢" },
+  vat: { label: "ΦΠΑ", icon: "🧮" },
+};
+
+type ToolId = "income" | "salary" | "self" | "corp" | "vat";
 
 export default function Home() {
-  const [active, setActive] = useState<ToolId>("income");
+  const [profile, setProfile] = useState<Profile>("individual");
+  const activeProfile = PROFILES.find((p) => p.id === profile)!;
+  const [active, setActive] = useState<ToolId>(activeProfile.defaultTool);
+
+  const chooseProfile = (p: Profile) => {
+    const prof = PROFILES.find((x) => x.id === p)!;
+    setProfile(p);
+    setActive(prof.defaultTool);
+  };
+
+  const switchTool = (t: ToolId) => {
+    // only allow tools for current profile
+    if (activeProfile.tools.includes(t)) setActive(t);
+  };
 
   return (
     <>
@@ -29,7 +82,7 @@ export default function Home() {
             GreekTax<span style={{ fontWeight: 500, color: "var(--muted)", fontSize: 14 }}>GR</span>
           </a>
           <ul className="nav-links">
-            <li><a href="#tools">Υπολογιστές</a></li>
+            <li><a href="#tools">Ποιος είσαι</a></li>
             <li><a href="#rules">Κλίμακες 2025</a></li>
             <li><a href="#faq">Συχνές ερωτήσεις</a></li>
           </ul>
@@ -43,17 +96,17 @@ export default function Home() {
             Οι φόροι σου, <span className="text-grad">απλοί και καθαροί</span>
           </h1>
           <p>
-            Υπολόγισε σε δευτερόλεπτα το φόρο εισοδήματος, τον καθαρό μισθό, το τεκμαρτό εισόδημα,
-            τη φορολογία εταιρειών και το ΦΠΑ — με τη φορολογική κλίμακα του 2025.
+            Υπολόγισε σε δευτερόλεπτα το φόρο που σε αφορά — διαφορετικοί υπολογισμοί για
+            μισθωτούς, ελεύθερους επαγγελματίες και επιχειρήσεις, με την κλίμακα του 2025.
           </p>
           <div className="hero-cta">
-            <a className="btn btn-primary" href="#tools">Άρχισε τον υπολογισμό</a>
+            <a className="btn btn-primary" href="#tools">Διάλεξε ποιος είσαι</a>
             <a className="btn btn-ghost" href="#rules">Δες τις κλίμακες</a>
           </div>
           <div className="stat-strip">
             <div className="stat-card"><b>9–44%</b><span>Κλίμακα φυσικών προσώπων</span></div>
+            <div className="stat-card"><b>€12.320</b><span>Ελάχιστο τεκμαρτό εισόδημα</span></div>
             <div className="stat-card"><b>22%</b><span>Φόρος νομικών προσώπων</span></div>
-            <div className="stat-card"><b>€12.320</b><span>Βάση τεκμαρτού εισοδήματος</span></div>
             <div className="stat-card"><b>13,87%</b><span>Εισφορές ΕΦΚΑ μισθωτού</span></div>
           </div>
         </div>
@@ -62,27 +115,48 @@ export default function Home() {
       <main>
         <section className="section" id="tools">
           <div className="container">
-            <span className="eyebrow">Υπολογιστές</span>
-            <h2 className="section-title">Διάλεξε το εργαλείο σου</h2>
+            <span className="eyebrow">Βήμα 1 — Ποιος φορολογούμενος είσαι;</span>
+            <h2 className="section-title">Διάλεξε την κατηγορία σου</h2>
             <p className="section-sub" style={{ marginBottom: 26 }}>
-              Πέντε υπολογιστές για μισθωτούς, ελεύθερους επαγγελματίες, επιχειρήσεις και όχι μόνο.
-              Τα αποτελέσματα ενημερώνονται αυτόματα καθώς πληκτρολογείς.
+              Κάθε κατηγορία φορολογείται διαφορετικά. Επέλεξε το προφίλ σου και θα δεις
+              μόνο τα εργαλεία που σε αφορούν.
             </p>
-            <div className="tabs" role="tablist">
-              {TOOLS.map((t) => (
+            <div className="profile-grid" role="tablist" aria-label="Κατηγορία φορολογούμενου">
+              {PROFILES.map((p) => (
                 <button
-                  key={t.id}
+                  key={p.id}
                   type="button"
                   role="tab"
-                  aria-selected={active === t.id}
-                  className={active === t.id ? "active" : ""}
-                  onClick={() => setActive(t.id)}
+                  aria-selected={profile === p.id}
+                  className={`profile-card ${profile === p.id ? "active" : ""}`}
+                  onClick={() => chooseProfile(p.id)}
                 >
-                  {t.icon} {t.label}
+                  <span className="pic">{p.icon}</span>
+                  <b>{p.title}</b>
+                  <small>{p.desc}</small>
                 </button>
               ))}
             </div>
-            {active === "income" && <IncomeCalc />}
+
+            <span className="profile-badge">
+              → Εργαλεία για: {activeProfile.title}
+            </span>
+            <div className="tabs" role="tablist" aria-label="Εργαλεία">
+              {activeProfile.tools.map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  role="tab"
+                  aria-selected={active === t}
+                  className={active === t ? "active" : ""}
+                  onClick={() => switchTool(t)}
+                >
+                  {TOOLS[t].icon} {TOOLS[t].label}
+                </button>
+              ))}
+            </div>
+
+            {active === "income" && <IncomeCalc key={profile} defaultType={activeProfile.defaultIncomeType} />}
             {active === "salary" && <NetSalaryCalc />}
             {active === "self" && <SelfEmployedCalc />}
             {active === "corp" && <CorporateCalc />}
@@ -96,7 +170,7 @@ export default function Home() {
             <h2 className="section-title">Η βάση των υπολογισμών</h2>
             <div className="cols" style={{ marginTop: 26 }}>
               <div>
-                <p className="result-label" style={{ fontSize: 15, marginBottom: 12 }}>Φυσικά πρόσωπα — μισθωτοί/συνταξιούχοι</p>
+                <p className="result-label" style={{ fontSize: 15, marginBottom: 12 }}>Μισθωτοί / Φυσικά πρόσωπα</p>
                 <div className="rule-grid">
                   <div className="rule-card"><b>9%</b><span>Έως €10.000</span></div>
                   <div className="rule-card"><b>22%</b><span>€10.001 – €20.000</span></div>
@@ -107,14 +181,20 @@ export default function Home() {
                 </div>
               </div>
               <div>
-                <p className="result-label" style={{ fontSize: 15, marginBottom: 12 }}>Ενιαίοι συντελεστές</p>
+                <p className="result-label" style={{ fontSize: 15, marginBottom: 12 }}>Ελεύθεροι επαγγελματίες</p>
+                <div className="rule-grid">
+                  <div className="rule-card"><b>€12.320</b><span>Βάση τεκμαρτού εισοδήματος 2025 (880×14)</span></div>
+                  <div className="rule-card"><b>−67% / −33%</b><span>4ο & 5ο έτος δραστηριότητας</span></div>
+                  <div className="rule-card"><b>+10% / +20% / +30%</b><span>7–9 / 10–12 / 12+ έτη</span></div>
+                  <div className="rule-card"><b>100%</b><span>Προκαταβολή φόρου</span></div>
+                  <div className="rule-card"><b>€50.000</b><span>Ανώτατο όριο τεκμαρτού</span></div>
+                  <div className="rule-card"><b>&lt; 4 έτη</b><span>Απαλλαγή από τεκμήρια</span></div>
+                </div>
+                <p className="result-label" style={{ fontSize: 15, marginTop: 20, marginBottom: 12 }}>Επιχειρήσεις</p>
                 <div className="rule-grid">
                   <div className="rule-card"><b>22%</b><span>Φόρος νομικών προσώπων (Α.Ε., Ι.Κ.Ε., Ο.Ε.)</span></div>
                   <div className="rule-card"><b>5%</b><span>Παρακράτηση μερίσματος</span></div>
-                  <div className="rule-card"><b>13,87%</b><span>Εισφορές ΕΦΚΑ — μισθωτός</span></div>
                   <div className="rule-card"><b>24% / 13% / 6%</b><span>Συντελεστές ΦΠΑ</span></div>
-                  <div className="rule-card"><b>€12.320</b><span>Βάση τεκμαρτού εισοδήματος 2025 (880×14)</span></div>
-                  <div className="rule-card"><b>100%</b><span>Προκαταβολή φόρου επιχειρήσεων</span></div>
                 </div>
               </div>
             </div>
@@ -127,7 +207,7 @@ export default function Home() {
             <h2 className="section-title">Ό,τι χρειάζεσαι για τη δήλωση</h2>
             <div className="tool-grid" style={{ marginTop: 26 }}>
               <div className="tool-card">
-                <div className="tool-icon">🏠</div>
+                <div className="tool-icon">🧑</div>
                 <h3>Μισθωτοί & συντάξεις</h3>
                 <p>Φόρος κλίμακας, μείωση φόρου ανά τέκνο, καθαρός μισθός και κόστος εργοδότη.</p>
               </div>
@@ -166,6 +246,12 @@ export default function Home() {
             <h2 className="section-title" style={{ textAlign: "center" }}>Συχνές ερωτήσεις</h2>
             <div className="faq" style={{ marginTop: 26 }}>
               <details className="faq-item">
+                <summary>Γιατί χωρίζετε τους φορολογούμενους σε κατηγορίες;</summary>
+                <div className="faq-body">
+                  Μισθωτοί, ελεύθεροι επαγγελματίες και επιχειρήσεις έχουν εντελώς διαφορετικούς υπολογισμούς: κλίμακα με μείωση φόρου για τους μισθωτούς, ελάχιστο τεκμαρτό εισόδημα για τους επαγγελματίες και σταθερό συντελεστή 22% για τις επιχειρήσεις.
+                </div>
+              </details>
+              <details className="faq-item">
                 <summary>Μέχρι πότε υποβάλλεται η δήλωση για το έτος 2025;</summary>
                 <div className="faq-body">
                   Η δήλωση Ε1 για τα εισοδήματα του 2025 υποβάλλεται ψηφιακά μέσω myAADE, συνήθως από τον Μάρτιο έως τα μέσα έτους επόμενου έτους. Ο φόρος εξοφλείται σε 8 δόσεις από τον Ιούλιο.
@@ -181,12 +267,6 @@ export default function Home() {
                 <summary>Ο υπολογισμός είναι 100% ακριβής;</summary>
                 <div className="faq-body">
                   Όχι — είναι εκτιμητικός. Εξαιρούνται ειδικές περιπτώσεις (απαλλαγές, εκπτώσεις δαπανών, εισφορά αλληλεγγύης, λοιπά τεκμήρια). Για πιστοποίηση βασίσου στο λογιστή σου ή τη δήλωση Ε1.
-                </div>
-              </details>
-              <details className="faq-item">
-                <summary>Ισχύει η κλίμακα του εργαλείου και για το 2024;</summary>
-                <div className="faq-body">
-                  Οι συντελεστές (9/22/28/36/44) είναι ίδιοι για τα φορολογικά έτη 2024 και 2025. Το εργαλείο δίνει δυνατότητα επιλογής έτους για τη σωστή βάση του τεκμαρτού εισοδήματος.
                 </div>
               </details>
               <details className="faq-item">
