@@ -5,9 +5,13 @@ import { eur, pct, corporateTax } from "@/lib/tax";
 import { NumberField, Segmented, ResultBig, Breakdown } from "./ui";
 import { SaveButton } from "./SaveButton";
 
-export function CorporateCalc() {
+interface CorporateCalcProps {
+  initialProfit?: number;
+}
+
+export function CorporateCalc({ initialProfit }: CorporateCalcProps = {}) {
   const [entityType, setEntityType] = useState<"double" | "single">("double");
-  const [profit, setProfit] = useState(80_000);
+  const [profit, setProfit] = useState(initialProfit ?? 80_000);
 
   const res = corporateTax(profit);
 

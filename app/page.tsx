@@ -6,6 +6,7 @@ import { SelfEmployedCalc } from "@/components/SelfEmployedCalc";
 import { VatCalc } from "@/components/VatCalc";
 import { NetSalaryCalc } from "@/components/NetSalaryCalc";
 import { CorporateCalc } from "@/components/CorporateCalc";
+import { PdfScanner } from "@/components/PdfScanner";
 
 type Profile = "individual" | "self" | "business";
 
@@ -32,7 +33,7 @@ const PROFILES: {
     icon: "💼",
     title: "Ελεύθερος επαγγελματίας",
     desc: "Ατομική επιχείρηση, μπλοκάκι. Ελάχιστο τεκμαρτό εισόδημα και προκαταβολή 100%.",
-    tools: ["income", "self", "vat"],
+    tools: ["scan", "income", "self", "vat"],
     defaultTool: "self",
     defaultIncomeType: "business",
   },
@@ -41,7 +42,7 @@ const PROFILES: {
     icon: "🏢",
     title: "Επιχείρηση",
     desc: "Α.Ε., Ι.Κ.Ε., Ο.Ε., Ε.Ε. Φόρος νομικών προσώπων 22% και μερίσματα.",
-    tools: ["self", "corp", "vat"],
+    tools: ["scan", "self", "corp", "vat"],
     defaultTool: "corp",
     defaultIncomeType: "business",
   },
@@ -53,24 +54,37 @@ const TOOLS: Record<ToolId, { label: string; icon: string }> = {
   self: { label: "Τεκμαρτό εισόδημα", icon: "📊" },
   corp: { label: "Φορολογία εταιρείας", icon: "🏢" },
   vat: { label: "ΦΠΑ", icon: "🧮" },
+  scan: { label: "Σάρωση PDF", icon: "📄" },
 };
 
-type ToolId = "income" | "salary" | "self" | "corp" | "vat";
+type ToolId = "income" | "salary" | "self" | "corp" | "vat" | "scan";
+
+interface Scanned {
+  revenue: number;
+  expenses: number;
+}
 
 export default function Home() {
   const [profile, setProfile] = useState<Profile>("individual");
   const activeProfile = PROFILES.find((p) => p.id === profile)!;
   const [active, setActive] = useState<ToolId>(activeProfile.defaultTool);
+  const [scanned, setScanned] = useState<Scanned | null>(null);
 
   const chooseProfile = (p: Profile) => {
     const prof = PROFILES.find((x) => x.id === p)!;
     setProfile(p);
     setActive(prof.defaultTool);
+    setScanned(null);
   };
 
   const switchTool = (t: ToolId) => {
     // only allow tools for current profile
     if (activeProfile.tools.includes(t)) setActive(t);
+  };
+
+  const applyScan = (s: Scanned) => {
+    setScanned(s);
+    setActive(profile === "business" ? "corp" : "self");
   };
 
   return (
@@ -160,9 +174,21 @@ export default function Home() {
 
             {active === "income" && <IncomeCalc key={profile} defaultType={activeProfile.defaultIncomeType} />}
             {active === "salary" && <NetSalaryCalc />}
-            {active === "self" && <SelfEmployedCalc />}
-            {active === "corp" && <CorporateCalc />}
+            {active === "self" && (
+              <SelfEmployedCalc
+                key={profile}
+                initialProfit={scanned ? Math.max(0, scanned.revenue - scanned.expenses) : undefined}
+                initialRevenue={scanned ? scanned.revenue : undefined}
+              />
+            )}
+            {active === "corp" && (
+              <CorporateCalc
+                key={profile}
+                initialProfit={scanned ? Math.max(0, scanned.revenue - scanned.expenses) : undefined}
+              />
+            )}
             {active === "vat" && <VatCalc />}
+            {active === "scan" && <PdfScanner onApply={applyScan} />}
           </div>
         </section>
 
@@ -232,6 +258,11 @@ export default function Home() {
                 <div className="tool-icon">🧮</div>
                 <h3>ΦΠΑ</h3>
                 <p>Πρόσθεσε ή απόσπασε ΦΠΑ 24/13/6% από οποιοδήποτε ποσό, άμεσα.</p>
+              </div>
+              <div className="tool-card">
+                <div className="tool-icon">📄</div>
+                <h3>Σάρωση PDF εσόδων/εξόδων</h3>
+                <p>Ανέβασε ψηφιακό PDF (τιμολόγια, τράπεζα, myData) και βγάλε έσοδα – έξοδα για επαγγελματίες & επιχειρήσεις.</p>
               </div>
               <div className="tool-card">
                 <div className="tool-icon">🗓️</div>

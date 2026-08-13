@@ -5,11 +5,16 @@ import { eur, pct, selfEmployedTax, TAX_YEARS, type TaxYear } from "@/lib/tax";
 import { NumberField, Segmented, ResultBig, Breakdown } from "./ui";
 import { SaveButton } from "./SaveButton";
 
-export function SelfEmployedCalc() {
+interface SelfEmployedCalcProps {
+  initialProfit?: number;
+  initialRevenue?: number;
+}
+
+export function SelfEmployedCalc({ initialProfit, initialRevenue }: SelfEmployedCalcProps = {}) {
   const [year, setYear] = useState<TaxYear>("2025");
   const [years, setYears] = useState(8);
-  const [profit, setProfit] = useState(14_000);
-  const [revenue, setRevenue] = useState(48_000);
+  const [profit, setProfit] = useState(initialProfit ?? 14_000);
+  const [revenue, setRevenue] = useState(initialRevenue ?? 48_000);
   const [payroll, setPayroll] = useState(0);
 
   const res = selfEmployedTax({ year, yearsActive: years, declaredProfit: profit, grossRevenue: revenue, payroll });
