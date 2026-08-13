@@ -98,6 +98,7 @@ export default function Home() {
           <ul className="nav-links">
             <li><a href="#tools">Ποιος είσαι</a></li>
             <li><a href="#rules">Κλίμακες 2025</a></li>
+            <li><a href="/deadlines">Προθεσμίες</a></li>
             <li><a href="#faq">Συχνές ερωτήσεις</a></li>
             <li><a href="/history">Ιστορικό</a></li>
             <li><a href="/account">Λογαριασμός</a></li>
@@ -266,8 +267,8 @@ export default function Home() {
               </div>
               <div className="tool-card">
                 <div className="tool-icon">🗓️</div>
-                <h3>Υπενθυμίσεις (σύντομα)</h3>
-                <p>Προθεσμίες δηλώσεων και πληρωμών μέσα στο εργαλείο — έρχεται σύντομα.</p>
+                <h3>Προθεσμίες 2025</h3>
+                <p>Ε1, ΦΠΑ, ΕΝΦΙΑ, δόσεις και ΕΦΚΑ σε ένα ημερολόγιο — σημείωσε ό,τι ολοκληρώνεις.</p>
               </div>
             </div>
           </div>

@@ -127,3 +127,17 @@ export function ResultBig({ value, label, accent }: { value: string; label: stri
     </div>
   );
 }
+
+export function PrintButton() {
+  return (
+    <button
+      type="button"
+      className="btn btn-ghost"
+      onClick={() => window.print()}
+      style={{ padding: "8px 16px", fontSize: 14 }}
+      aria-label="Εκτύπωση ή αποθήκευση ως PDF"
+    >
+      🖨️ Εκτύπωση / PDF
+    </button>
+  );
+}

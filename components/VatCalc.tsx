@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { eur, vatCalc, pct, type VatRate } from "@/lib/tax";
-import { NumberField, Segmented, ResultBig, Breakdown } from "./ui";
+import { NumberField, Segmented, ResultBig, Breakdown, PrintButton } from "./ui";
 import { SaveButton } from "./SaveButton";
 
 const RATES = [
@@ -48,6 +48,7 @@ export function VatCalc() {
           title={`ΦΠΑ ${pct(rate * 100)} — ${eur(res.gross, 2)}`}
           data={{ mode, rate, net: res.net, vat: res.vat, gross: res.gross, detail: `${eur(res.net, 2)} + ΦΠΑ ${eur(res.vat, 2)} = ${eur(res.gross, 2)}` }}
         />
+        <PrintButton />
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { eur, pct, corporateTax } from "@/lib/tax";
-import { NumberField, Segmented, ResultBig, Breakdown } from "./ui";
+import { NumberField, Segmented, ResultBig, Breakdown, PrintButton } from "./ui";
 import { SaveButton } from "./SaveButton";
 
 interface CorporateCalcProps {
@@ -51,6 +51,7 @@ export function CorporateCalc({ initialProfit }: CorporateCalcProps = {}) {
           title={`Εταιρεία — κέρδη ${eur(profit)}`}
           data={{ entityType, profit, tax: res.tax, dividendTax: res.dividendTax, dividendNet: res.dividendNet, effectiveRate: res.effectiveRate, detail: `Φόρος ${eur(res.tax)} · καθαρό μέρισμα ${eur(res.dividendNet)}` }}
         />
+        <PrintButton />
       </div>
     </div>
   );

@@ -1301,3 +1301,155 @@ footer.foot {
   font-size: 15px;
   cursor: pointer;
 }
+
+/* ---------- Compare & scenarios ---------- */
+.scenario-box {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--surface-2);
+}
+
+.scenario-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--faint);
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 760px) {
+  .compare-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.compare-col {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  background: var(--surface);
+}
+
+.compare-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+/* ---------- Print ---------- */
+@media print {
+  body { background: #fff !important; }
+  .nav,
+  .hero,
+  footer.foot,
+  .chat-fab,
+  .chat-panel,
+  .tabs,
+  .profile-grid,
+  .profile-badge,
+  .btn,
+  .range-slider {
+    display: none !important;
+  }
+  .section {
+    padding: 0 !important;
+  }
+  .calc {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+}
+
+/* ---------- Deadlines ---------- */
+.deadline-card {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  transition: all 0.15s ease;
+}
+
+.deadline-card.done {
+  opacity: 0.6;
+}
+
+.deadline-check {
+  position: relative;
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.deadline-check input {
+  position: absolute;
+  opacity: 0;
+}
+
+.deadline-check span {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  border: 2px solid var(--border);
+  display: block;
+  transition: all 0.15s ease;
+}
+
+.deadline-check input:checked + span {
+  background: var(--accent);
+  border-color: var(--accent);
+  position: relative;
+}
+
+.deadline-check input:checked + span::after {
+  content: "✓";
+  color: #fff;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.deadline-body {
+  flex: 1;
+}
+
+.deadline-body b {
+  display: block;
+  font-size: 15px;
+  margin: 6px 0 4px;
+}
+
+.deadline-body p {
+  font-size: 13.5px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.deadline-month {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.deadline-tag {
+  font-size: 12px;
+  font-weight: 650;
+}
