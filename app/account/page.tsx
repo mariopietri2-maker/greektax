@@ -8,11 +8,9 @@ export const dynamic = "force-dynamic";
 export default async function AccountPage({ searchParams }: { searchParams: Promise<{ error?: string; saved?: string }> }) {
   const { error, saved } = await searchParams;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = supabase ? (await supabase.auth.getUser()).data.user : null;
 
-  if (!user) redirect("/login");
+  if (!user || !supabase) redirect("/login");
 
   const { data: profile } = await supabase
     .from("profiles")

@@ -10,6 +10,7 @@ export interface SavedCalculation {
 
 export async function getCurrentUser() {
   const supabase = createClient();
+  if (!supabase) return null;
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -18,6 +19,7 @@ export async function getCurrentUser() {
 
 export async function saveCalculation(tool: string, title: string, data: Record<string, unknown>): Promise<{ ok: boolean; error?: string }> {
   const supabase = createClient();
+  if (!supabase) return { ok: false, error: "Η βάση δεδομένων δεν είναι συνδεδεμένη ακόμα." };
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Πρέπει να συνδεθείς για να αποθηκεύσεις." };
 
@@ -33,6 +35,7 @@ export async function saveCalculation(tool: string, title: string, data: Record<
 
 export async function listCalculations(): Promise<SavedCalculation[]> {
   const supabase = createClient();
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from("calculations")
     .select("id, tool, title, data, created_at")
@@ -47,6 +50,7 @@ export async function listCalculations(): Promise<SavedCalculation[]> {
 
 export async function deleteCalculation(id: string) {
   const supabase = createClient();
+  if (!supabase) return;
   const { error } = await supabase.from("calculations").delete().eq("id", id);
   if (error) console.error(error.message);
 }

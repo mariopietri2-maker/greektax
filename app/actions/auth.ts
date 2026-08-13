@@ -8,6 +8,7 @@ export type ProfileType = "individual" | "self" | "business";
 
 export async function signup(formData: FormData) {
   const supabase = await createClient();
+  if (!supabase) redirect("/login?error=setup_required");
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
   const fullName = String(formData.get("fullName") ?? "").trim();
@@ -43,6 +44,7 @@ export async function signup(formData: FormData) {
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
+  if (!supabase) redirect("/login?error=setup_required");
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
 
@@ -59,16 +61,15 @@ export async function login(formData: FormData) {
 
 export async function logout() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  if (supabase) await supabase.auth.signOut();
   revalidatePath("/", "layout");
   redirect("/login");
 }
 
 export async function updateProfile(formData: FormData) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  if (!supabase) redirect("/login");
+  const user = (await supabase.auth.getUser()).data.user;
   if (!user) redirect("/login");
 
   const fullName = String(formData.get("fullName") ?? "").trim();

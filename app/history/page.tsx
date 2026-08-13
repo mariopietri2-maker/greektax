@@ -2,16 +2,15 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { logout } from "@/app/actions/auth";
 import { createClient } from "@/lib/supabase/server";
+import type { SavedCalculation } from "@/lib/supabase/calcs";
 
 export const dynamic = "force-dynamic";
 
 export default async function HistoryPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = supabase ? (await supabase.auth.getUser()).data.user : null;
 
-  if (!user) redirect("/login");
+  if (!user || !supabase) redirect("/login");
 
   const { data: calcs } = await supabase
     .from("calculations")
@@ -62,8 +61,8 @@ export default async function HistoryPage() {
               </tr>
             </thead>
             <tbody>
-              {calcs.map((c) => {
-                const t = toolLabels[c.tool as string] ?? { icon: "📝", label: c.tool };
+              {(calcs as SavedCalculation[]).map((c) => {
+                const t = toolLabels[c.tool as string] ?? { icon: "📝", label: c.tool as string };
                 const data = (c.data ?? {}) as Record<string, unknown>;
                 const detail = data.detail ? String(data.detail) : JSON.stringify(data).slice(0, 120);
                 return (
