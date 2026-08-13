@@ -7,57 +7,7 @@ import { VatCalc } from "@/components/VatCalc";
 import { NetSalaryCalc } from "@/components/NetSalaryCalc";
 import { CorporateCalc } from "@/components/CorporateCalc";
 import { PdfScanner } from "@/components/PdfScanner";
-
-type Profile = "individual" | "self" | "business";
-
-const PROFILES: {
-  id: Profile;
-  icon: string;
-  title: string;
-  desc: string;
-  tools: ToolId[];
-  defaultTool: ToolId;
-  defaultIncomeType: "wage" | "business" | "rent";
-}[] = [
-  {
-    id: "individual",
-    icon: "🧑",
-    title: "Μισθωτός / Φυσικό πρόσωπο",
-    desc: "Μισθοί, συντάξεις, ενοίκια. Κλίμακα 9–44% με μείωση φόρου και τέκνα.",
-    tools: ["income", "salary", "vat"],
-    defaultTool: "income",
-    defaultIncomeType: "wage",
-  },
-  {
-    id: "self",
-    icon: "💼",
-    title: "Ελεύθερος επαγγελματίας",
-    desc: "Ατομική επιχείρηση, μπλοκάκι. Ελάχιστο τεκμαρτό εισόδημα και προκαταβολή 100%.",
-    tools: ["scan", "income", "self", "vat"],
-    defaultTool: "self",
-    defaultIncomeType: "business",
-  },
-  {
-    id: "business",
-    icon: "🏢",
-    title: "Επιχείρηση",
-    desc: "Α.Ε., Ι.Κ.Ε., Ο.Ε., Ε.Ε. Φόρος νομικών προσώπων 22% και μερίσματα.",
-    tools: ["scan", "self", "corp", "vat"],
-    defaultTool: "corp",
-    defaultIncomeType: "business",
-  },
-];
-
-const TOOLS: Record<ToolId, { label: string; icon: string }> = {
-  income: { label: "Φόρος εισοδήματος", icon: "💶" },
-  salary: { label: "Καθαρός μισθός", icon: "🧾" },
-  self: { label: "Τεκμαρτό εισόδημα", icon: "📊" },
-  corp: { label: "Φορολογία εταιρείας", icon: "🏢" },
-  vat: { label: "ΦΠΑ", icon: "🧮" },
-  scan: { label: "Σάρωση PDF", icon: "📄" },
-};
-
-type ToolId = "income" | "salary" | "self" | "corp" | "vat" | "scan";
+import { PROFILES, TOOLS, profileById, type Profile, type ToolId } from "@/lib/tools";
 
 interface Scanned {
   revenue: number;
@@ -66,12 +16,12 @@ interface Scanned {
 
 export default function Home() {
   const [profile, setProfile] = useState<Profile>("individual");
-  const activeProfile = PROFILES.find((p) => p.id === profile)!;
+  const activeProfile = profileById(profile);
   const [active, setActive] = useState<ToolId>(activeProfile.defaultTool);
   const [scanned, setScanned] = useState<Scanned | null>(null);
 
   const chooseProfile = (p: Profile) => {
-    const prof = PROFILES.find((x) => x.id === p)!;
+    const prof = profileById(p);
     setProfile(p);
     setActive(prof.defaultTool);
     setScanned(null);
